@@ -6,6 +6,7 @@ import { CgProfile } from "react-icons/cg";
 import { MdMenu, MdClose } from "react-icons/md";
 import { FaChevronDown } from "react-icons/fa";
 import { useCart } from "../Context/CartContext.jsx";
+import SearchBox from "./SearchBox.jsx";
 
 const shopLinks = [
   { name: "Casual", to: "/casual" },
@@ -14,6 +15,7 @@ const shopLinks = [
   { name: "Jeans", to: "/product" },
   { name: "Polos", to: "/product" },
 ];
+
 const links = [
   { name: "On Sale", href: "#" },
   { name: "New Arrivals", href: "#" },
@@ -23,13 +25,15 @@ const links = [
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
-  const { totalItems } = useCart();
   const [mobileShop, setMobileShop] = useState(false);
+  const [mobileSearch, setMobileSearch] = useState(false);
+  const { totalItems } = useCart();
 
   const closeAll = () => {
     setOpen(false);
     setShopOpen(false);
     setMobileShop(false);
+    setMobileSearch(false);
   };
 
   return (
@@ -38,7 +42,10 @@ const Navbar = () => {
       <div className="flex items-center gap-3 lg:gap-10">
         <button
           className="md:hidden text-2xl cursor-pointer"
-          onClick={() => setOpen(!open)}
+          onClick={() => {
+            setOpen(!open);
+            setMobileSearch(false);
+          }}
         >
           {open ? <MdClose /> : <MdMenu />}
         </button>
@@ -91,17 +98,20 @@ const Navbar = () => {
       </div>
 
       {/* Middle: search bar (tablet and up) */}
-      <div className="hidden md:flex flex-1 max-w-xl mx-6 items-center gap-2 bg-[#f0f0f0] px-4 py-2 rounded-full">
-        <IoIosSearch className="text-xl" />
-        <input
-          type="text"
-          placeholder="Search for products..."
-          className="outline-0 w-full bg-transparent"
-        />
-      </div>
+      <SearchBox className="hidden md:block flex-1 max-w-xl mx-6" />
 
+      {/* Right: icons */}
       <div className="flex items-center gap-4 text-2xl">
-        <IoIosSearch className="md:hidden" />
+        <button
+          className="md:hidden cursor-pointer"
+          onClick={() => {
+            setMobileSearch(!mobileSearch);
+            setOpen(false);
+          }}
+        >
+          <IoIosSearch />
+        </button>
+
         <Link to="/cart" className="relative">
           <CiShoppingCart />
           {totalItems > 0 && (
@@ -110,8 +120,16 @@ const Navbar = () => {
             </span>
           )}
         </Link>
+
         <CgProfile />
       </div>
+
+      {/* Phone search bar */}
+      {mobileSearch && (
+        <div className="md:hidden absolute top-full left-0 w-full bg-white px-4 pb-4 z-20 shadow-md">
+          <SearchBox onSelect={() => setMobileSearch(false)} />
+        </div>
+      )}
 
       {/* Phone dropdown menu */}
       {open && (
