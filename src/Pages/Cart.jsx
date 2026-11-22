@@ -1,18 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaChevronRight, FaTrashAlt, FaMinus, FaPlus, FaTag, FaArrowRight } from "react-icons/fa";
 import { useCart } from "../Context/CartContext.jsx";
 
-const DELIVERY_FEE = 15;
-const DISCOUNT_RATE = 0.2;
-
 const Cart = () => {
-  const { items, changeQty, removeItem } = useCart();
+  const {
+    items,
+    changeQty,
+    removeItem,
+    promo,
+    applyPromo,
+    removePromo,
+    subtotal,
+    discountRate,
+    discount,
+    delivery,
+    total,
+  } = useCart();
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const discount = Math.round(subtotal * DISCOUNT_RATE);
-  const delivery = items.length > 0 ? DELIVERY_FEE : 0;
-  const total = subtotal - discount + delivery;
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+
+  const handleApply = () => {
+    if (applyPromo(code)) {
+      setError("");
+      setCode("");
+    } else {
+      setError("Invalid promo code");
+    }
+  };
 
   return (
     <div className="px-4 md:px-10">
@@ -25,7 +41,6 @@ const Cart = () => {
       <h1 className="text-3xl md:text-4xl font-extrabold">YOUR CART</h1>
 
       {items.length === 0 ? (
-        /* Empty cart */
         <div className="border border-gray-200 rounded-2xl py-16 px-4 text-center mt-6 mb-20">
           <p className="text-xl font-bold">Your cart is empty</p>
           <p className="text-gray-500 text-sm mt-2">
@@ -100,10 +115,16 @@ const Cart = () => {
                 <span className="text-gray-500">Subtotal</span>
                 <span className="font-bold">${subtotal}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Discount (-20%)</span>
-                <span className="font-bold text-red-500">-${discount}</span>
-              </div>
+
+              {discount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">
+                    Discount (-{Math.round(discountRate * 100)}%)
+                  </span>
+                  <span className="font-bold text-red-500">-${discount}</span>
+                </div>
+              )}
+
               <div className="flex justify-between">
                 <span className="text-gray-500">Delivery Fee</span>
                 <span className="font-bold">${delivery}</span>
@@ -115,23 +136,43 @@ const Cart = () => {
               <span className="text-xl md:text-2xl font-bold">${total}</span>
             </div>
 
+            {/* Promo code */}
             <div className="flex gap-3 mt-5">
               <div className="flex-1 bg-[#f0f0f0] rounded-full flex items-center gap-2 px-4 py-3">
                 <FaTag className="text-gray-400" />
                 <input
                   type="text"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleApply()}
                   placeholder="Add promo code"
                   className="outline-none bg-transparent text-sm w-full"
                 />
               </div>
-              <button className="bg-black text-white rounded-full px-6 text-sm cursor-pointer hover:bg-gray-800">
+              <button
+                onClick={handleApply}
+                className="bg-black text-white rounded-full px-6 text-sm cursor-pointer hover:bg-gray-800"
+              >
                 Apply
               </button>
             </div>
 
-            <button className="w-full bg-black text-white rounded-full py-4 text-sm mt-4 flex items-center justify-center gap-3 cursor-pointer hover:bg-gray-800">
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+            {promo && (
+              <p className="text-green-600 text-sm mt-2">
+                Code {promo} applied.{" "}
+                <button onClick={removePromo} className="underline cursor-pointer">
+                  Remove
+                </button>
+              </p>
+            )}
+
+            <Link
+              to="/checkout"
+              className="w-full bg-black text-white rounded-full py-4 text-sm mt-4 flex items-center justify-center gap-3 hover:bg-gray-800"
+            >
               Go to Checkout <FaArrowRight />
-            </button>
+            </Link>
           </div>
         </div>
       )}

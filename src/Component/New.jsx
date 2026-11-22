@@ -15,7 +15,7 @@ const New = () => {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
         {visibleProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product}/>
         ))}
       </div>
 

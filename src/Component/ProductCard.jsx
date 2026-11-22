@@ -8,7 +8,7 @@ const ProductCard = ({ product }) => {
     : null;
 
   return (
-    <Link to={`/product/${product.id}`} className="block">
+    <Link to={`/product/${product.id}`} className="block border border-gray-200 rounded-2xl p-3 shadow">
       <div className="bg-[#f0eeed] rounded-2xl aspect-square flex items-center justify-center overflow-hidden">
         <img
           src={product.image}
